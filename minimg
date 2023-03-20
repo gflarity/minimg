@@ -1,5 +1,16 @@
 #!/usr/bin/env deno run -A
 import { dirname } from "https://deno.land/std@0.180.0/path/mod.ts";
-const realPath = dirname(Deno.readLinkSync(new URL(import.meta.url).pathname));
-const minimg = (await import(realPath + "/minimg.tsx")).default;
-minimg();
+
+const importPath = new URL(import.meta.url).pathname;
+
+// check if importPath is a rymlink in Deno
+
+let realPath = "";
+if (Deno.lstatSync(importPath).isSymlink) {
+  realPath = dirname(Deno.readLinkSync(importPath));
+} else {
+  realPath = dirname(importPath)
+}
+
+// importing automatically starts minimg
+await import(realPath + "/minimg.tsx")
