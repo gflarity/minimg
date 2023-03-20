@@ -1,6 +1,5 @@
 #!/usr/bin/env deno run -A
 import { dirname } from "https://deno.land/std@0.180.0/path/mod.ts";
-console.log(import.meta.url);
 const realPath = dirname(Deno.readLinkSync(new URL(import.meta.url).pathname));
-const mod = await import(realPath + "/minimg.tsx");
-mod.default();
+const minimg = (await import(realPath + "/minimg.tsx")).default;
+minimg();
