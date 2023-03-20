@@ -1,3 +1,4 @@
+#!/usr/bin/env deno run -A
 /** @jsxImportSource https://esm.sh/preact */
 
 import { render } from "https://esm.sh/preact-render-to-string@5.2.6";
