@@ -37,6 +37,7 @@ ${await Deno.readTextFile(tsxPath + "/client.js")}
 `;
 const style = await Deno.readTextFile(tsxPath + "/style.css");
 
+
 // pre generate the index.html (/) as it never changes once launched
 const indexBody = render(
   <html lang="en">
@@ -51,17 +52,31 @@ const indexBody = render(
   </html>,
 );
 
+// extensions load here
+const extensionWorkers = Deno.args.map((value) => new Worker(new URL(value, import.meta.url).href, { type: "module" })) as Worker[]
+
 // here's the request handler used by serve below
-async function reqHandler(req: Request) {
+async function reqHandler(req: Request): Promise<Response> {
   const urlPath = new URL(req.url).pathname;
 
   if (urlPath === "/") {
+    extensionWorkers.forEach((worker) => worker.postMessage({ url: req.url }));
     return new Response(indexBody, {
       headers: {
         "content-length": `${indexBody.length}`,
         "content-type": contentType("html"),
       },
     });
+}
+
+  // keyDownEvents from browser go here
+  if (urlPath === "/keydown") { 
+    // tell extensions about get down
+    const formData =  Object.fromEntries(await req.formData());
+    const file = new URL(formData!.src as string).pathname.replace("/static/", "");
+    extensionWorkers.forEach((worker) => worker.postMessage({ url: req.url, file: file }));
+    // just a boring 200, the extension would have seen the keydown event and req with the key
+    return new Response("");
   }
 
   if (urlPath.startsWith("/static/")) {
@@ -82,7 +97,7 @@ async function reqHandler(req: Request) {
       headers: {
         "content-length": fileSize.toString(),
         "content-type": contentType(filePath) || "",
-      },
+      },      
     });
   }
 }
