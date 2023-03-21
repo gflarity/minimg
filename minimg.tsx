@@ -17,10 +17,15 @@ for await (const dirEntry of iter) {
   dirEntries.push(dirEntry);
 }
 
+// this is were the static route goes
+const staticRoot = "/static/";
+
 // filter any files that aren't .jpg
 const files = dirEntries.filter((dirEntry) =>
   dirEntry.name.endsWith(".JPG") || dirEntry.name.endsWith(".jpg")
-).map((dirEntry) => dirEntry.name);
+).map((dirEntry) => staticRoot + dirEntry.name);
+
+
 
 // the location of the this tsx file, we use readLinkSync incase it's a symlink
 const tsxPath = dirname(new URL(import.meta.url).pathname);
@@ -48,9 +53,9 @@ const indexBody = render(
 
 // here's the request handler used by serve below
 async function reqHandler(req: Request) {
-  const filePath = CWD + new URL(req.url).pathname;
+  const urlPath = new URL(req.url).pathname;
 
-  if (filePath === CWD + "/") {
+  if (urlPath === "/") {
     return new Response(indexBody, {
       headers: {
         "content-length": `${indexBody.length}`,
@@ -59,23 +64,27 @@ async function reqHandler(req: Request) {
     });
   }
 
-  // if we're not serving static files, images probably
-  let fileSize;
-  try {
-    fileSize = (await Deno.stat(filePath)).size;
-  } catch (e) {
-    if (e instanceof Deno.errors.NotFound) {
-      return new Response(null, { status: 404 });
+  if (urlPath.startsWith("/static/")) {
+    const filePath = CWD + urlPath.replace("/static", ""); 
+
+    let fileSize;
+    try {
+      fileSize = (await Deno.stat(filePath)).size;
+    } catch (e) {
+      if (e instanceof Deno.errors.NotFound) {
+        return new Response(null, { status: 404 });
+      }
+      return new Response(null, { status: 500 });
     }
-    return new Response(null, { status: 500 });
+
+    const body = (await Deno.open(filePath)).readable;
+    return new Response(body, {
+      headers: {
+        "content-length": fileSize.toString(),
+        "content-type": contentType(filePath) || "",
+      },
+    });
   }
-  const body = (await Deno.open(filePath)).readable;
-  return new Response(body, {
-    headers: {
-      "content-length": fileSize.toString(),
-      "content-type": contentType(filePath) || "",
-    },
-  });
 }
 
 // start the service
