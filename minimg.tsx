@@ -74,7 +74,7 @@ async function reqHandler(req: Request): Promise<Response> {
     // tell extensions about get down
     const formData =  Object.fromEntries(await req.formData());
     const file = new URL(formData!.src as string).pathname.replace("/static/", "");
-    extensionWorkers.forEach((worker) => worker.postMessage({ url: req.url, file: file }));
+    extensionWorkers.forEach((worker) => worker.postMessage({ url: req.url, file: file, key: formData.key }));
     // just a boring 200, the extension would have seen the keydown event and req with the key
     return new Response("");
   }
