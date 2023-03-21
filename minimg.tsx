@@ -100,6 +100,8 @@ async function reqHandler(req: Request): Promise<Response> {
       },      
     });
   }
+
+  return new Response(null, { status: 404 });
 }
 
 // start the service
