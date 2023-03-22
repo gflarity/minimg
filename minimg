@@ -3,8 +3,7 @@ import { dirname } from "https://deno.land/std@0.180.0/path/mod.ts";
 
 const importPath = new URL(import.meta.url).pathname;
 
-// check if importPath is a rymlink in Deno
-
+// check if importPath is a symlink in Deno
 let realPath = "";
 if (Deno.lstatSync(importPath).isSymlink) {
   realPath = dirname(Deno.readLinkSync(importPath));
