@@ -24,8 +24,6 @@ const files = dirEntries.filter((dirEntry) =>
   dirEntry.name.endsWith(".JPG") || dirEntry.name.endsWith(".jpg")
 ).map((dirEntry) => staticRoot + dirEntry.name);
 
-
-
 // the location of the this tsx file, we use readLinkSync incase it's a symlink
 const tsxPath = dirname(new URL(import.meta.url).pathname);
 
@@ -41,7 +39,7 @@ const style = await Deno.readTextFile(tsxPath + "/style.css");
 const indexBody = render(
   <html lang="en">
     <head>
-      <title>title</title>
+      <title id="title"/>
       <style dangerouslySetInnerHTML={{ __html: style }}></style>
       <script dangerouslySetInnerHTML={{ __html: script }}></script>
     </head>
