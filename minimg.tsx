@@ -20,9 +20,18 @@ for await (const dirEntry of iter) {
 const staticRoot = "/static/";
 
 // filter any files that aren't .jpg
+<<<<<<< Updated upstream
 const files = dirEntries.filter((dirEntry) =>
   dirEntry.name.endsWith(".JPG") || dirEntry.name.endsWith(".jpg")
 ).map((dirEntry) => staticRoot + dirEntry.name);
+=======
+const files = dirEntries
+  .filter(
+    (dirEntry) =>
+      dirEntry.name.endsWith(".JPG") || dirEntry.name.endsWith(".jpg")
+  )
+  .map((dirEntry) => staticRoot + dirEntry.name);
+>>>>>>> Stashed changes
 
 // the location of the this tsx file, we use readLinkSync incase it's a symlink
 const tsxPath = dirname(new URL(import.meta.url).pathname);
@@ -33,7 +42,6 @@ let files = ${JSON.stringify(files)};
 ${await Deno.readTextFile(tsxPath + "/client.js")}
 `;
 const style = await Deno.readTextFile(tsxPath + "/style.css");
-
 
 // pre generate the index.html (/) as it never changes once launched
 const indexBody = render(
@@ -46,11 +54,14 @@ const indexBody = render(
     <body>
       <img id="viewer" />
     </body>
-  </html>,
+  </html>
 );
 
 // extensions load here
-const extensionWorkers = Deno.args.map((value) => new Worker(new URL(value, import.meta.url).href, { type: "module" })) as Worker[]
+const extensionWorkers = Deno.args.map(
+  (value) =>
+    new Worker(new URL(value, import.meta.url).href, { type: "module" })
+) as Worker[];
 
 // here's the request handler used by serve below
 async function reqHandler(req: Request): Promise<Response> {
@@ -64,26 +75,33 @@ async function reqHandler(req: Request): Promise<Response> {
         "content-type": contentType("html"),
       },
     });
-}
+  }
 
   // keyDownEvents from browser go here
-  if (urlPath === "/keydown") { 
+  if (urlPath === "/keydown") {
     // tell extensions about get down
-    const formData =  Object.fromEntries(await req.formData());
-    const file = new URL(formData!.src as string).pathname.replace("/static/", "");
-    extensionWorkers.forEach((worker) => worker.postMessage({ url: req.url, file: file, key: formData.key }));
+    const formData = Object.fromEntries(await req.formData());
+    const file = new URL(formData!.src as string).pathname.replace(
+      "/static/",
+      ""
+    );
+    extensionWorkers.forEach((worker) =>
+      worker.postMessage({ url: req.url, file: file, key: formData.key })
+    );
     // just a boring 200, the extension would have seen the keydown event and req with the key
     return new Response("");
   }
 
   if (urlPath.startsWith("/static/")) {
-    const filePath = CWD + urlPath.replace("/static", ""); 
+    const filePath = CWD + decodeURI(urlPath.replace("/static", ""));
+    console.log(filePath);
 
     let fileSize;
     try {
       fileSize = (await Deno.stat(filePath)).size;
     } catch (e) {
       if (e instanceof Deno.errors.NotFound) {
+        // check if importPath is a symlink in Deno
         return new Response(null, { status: 404 });
       }
       return new Response(null, { status: 500 });
@@ -94,7 +112,7 @@ async function reqHandler(req: Request): Promise<Response> {
       headers: {
         "content-length": fileSize.toString(),
         "content-type": contentType(filePath) || "",
-      },      
+      },
     });
   }
 
@@ -113,6 +131,7 @@ if (Deno.build.os == "darwin") {
     "-na",
     "Google Chrome",
     "--args",
+    "-n",
     "--new-window",
     "--app=http://localhost:8080",
   ];
