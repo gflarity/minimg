@@ -1,14 +1,8 @@
 // The index in files : string[] (see minimg.tsx) that we're currently viewing
 let index = 0;
 
-<<<<<<< Updated upstream
 self.addEventListener("load", function () {
-  updateImageAndTitle()
-=======
-window.addEventListener("load", function () {
-  const viewer = document.getElementById("viewer");
-  viewer.src = encodeURI(files[0]);
->>>>>>> Stashed changes
+  updateImageAndTitle();
 });
 
 // listen for the the ArrowLeft event
@@ -22,15 +16,9 @@ document.addEventListener("keydown", function (event) {
   if (keyName === "ArrowRight" && index < files.length - 1) {
     index++;
   }
-<<<<<<< Updated upstream
- 
-  updateImageAndTitle();
-=======
 
   // update the image we're viewing
-  const viewer = document.getElementById("viewer");
-  viewer.src = encodeURI(files[index]);
->>>>>>> Stashed changes
+  updateImageAndTitle();
 
   // notify server of the event and current src
   const formData = new FormData();
@@ -42,7 +30,7 @@ document.addEventListener("keydown", function (event) {
 // update the image and title
 function updateImageAndTitle() {
   const viewer = document.getElementById("viewer");
-  viewer.src = files[index];
+  viewer.src = encodeURI(files[index]);
 
   const title = document.getElementById("title");
 

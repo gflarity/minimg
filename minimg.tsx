@@ -20,18 +20,12 @@ for await (const dirEntry of iter) {
 const staticRoot = "/static/";
 
 // filter any files that aren't .jpg
-<<<<<<< Updated upstream
-const files = dirEntries.filter((dirEntry) =>
-  dirEntry.name.endsWith(".JPG") || dirEntry.name.endsWith(".jpg")
-).map((dirEntry) => staticRoot + dirEntry.name);
-=======
 const files = dirEntries
   .filter(
     (dirEntry) =>
       dirEntry.name.endsWith(".JPG") || dirEntry.name.endsWith(".jpg")
   )
   .map((dirEntry) => staticRoot + dirEntry.name);
->>>>>>> Stashed changes
 
 // the location of the this tsx file, we use readLinkSync incase it's a symlink
 const tsxPath = dirname(new URL(import.meta.url).pathname);
@@ -47,7 +41,7 @@ const style = await Deno.readTextFile(tsxPath + "/style.css");
 const indexBody = render(
   <html lang="en">
     <head>
-      <title id="title"/>
+      <title id="title" />
       <style dangerouslySetInnerHTML={{ __html: style }}></style>
       <script dangerouslySetInnerHTML={{ __html: script }}></script>
     </head>
